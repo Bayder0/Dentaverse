@@ -950,12 +950,15 @@ export async function createUserAction(_: ActionResult, formData: FormData): Pro
       role: formData.get("role"),
     });
 
+    // Normalize email: trim whitespace and convert to lowercase
+    const normalizedEmail = input.email.trim().toLowerCase();
+
     const hashedPassword = await bcrypt.hash(input.password, 10);
     const nowMonth = getMonthKey(new Date());
 
     const userData: any = {
       name: input.name,
-      email: input.email,
+      email: normalizedEmail,
       hashedPassword,
       plainPassword: input.password, // Store plain password for owner visibility
       role: input.role,

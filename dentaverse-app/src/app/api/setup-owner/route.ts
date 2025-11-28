@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 
 async function createOwner() {
   try {
-    const ownerEmail = "owner@dentaverse.com";
+    const ownerEmail = "owner@dentaverse.com".toLowerCase().trim();
     const ownerPassword = "dentaverse2024";
     
     // Check if owner already exists
