@@ -5,7 +5,7 @@ import { prisma } from "./prisma";
 
 export const authConfig = {
   adapter: PrismaAdapter(prisma),
-  session: { strategy: "jwt" },
+  session: { strategy: "jwt" as const },
   pages: { signIn: "/login" },
   providers: [
     Credentials({
