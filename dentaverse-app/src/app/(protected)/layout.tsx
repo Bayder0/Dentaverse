@@ -17,15 +17,15 @@ import {
 } from "lucide-react";
 
 const allNavItems = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard, roles: ["OWNER", "SELLER"] },
-  { href: "/sales", label: "Sales", icon: ShoppingCart, roles: ["OWNER", "SELLER"] },
-  { href: "/courses", label: "Courses & Discounts", icon: GraduationCap, roles: ["OWNER"] },
-  { href: "/distribution", label: "Money Distribution", icon: DollarSign, roles: ["OWNER"] },
-  { href: "/sellers", label: "Sellers & Commissions", icon: Users, roles: ["OWNER"] },
-  { href: "/expenses", label: "Expenses", icon: Receipt, roles: ["OWNER"] },
-  { href: "/salaries", label: "Salaries", icon: Wallet, roles: ["OWNER"] },
-  { href: "/analytics", label: "Analytics", icon: BarChart3, roles: ["OWNER"] },
-  { href: "/settings", label: "Info & Settings", icon: Settings, roles: ["OWNER"] },
+  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
+  { href: "/sales", label: "Sales", icon: ShoppingCart },
+  { href: "/courses", label: "Courses & Discounts", icon: GraduationCap },
+  { href: "/distribution", label: "Money Distribution", icon: DollarSign },
+  { href: "/sellers", label: "Sellers & Commissions", icon: Users },
+  { href: "/expenses", label: "Expenses", icon: Receipt },
+  { href: "/salaries", label: "Salaries", icon: Wallet },
+  { href: "/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/settings", label: "Info & Settings", icon: Settings },
 ];
 
 export default async function ProtectedLayout({ children }: { children: ReactNode }) {
@@ -35,8 +35,7 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
     redirect("/login");
   }
 
-  const userRole = session.user?.role || "SELLER";
-  const navItems = allNavItems.filter((item) => item.roles.includes(userRole));
+  const navItems = allNavItems;
 
   return (
     <div className="flex min-h-screen flex-col bg-cyan-50">
@@ -57,7 +56,7 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
             </h1>
           </div>
           <p className="mt-2 text-lg font-bold text-cyan-900">Control Center</p>
-          <p className="mt-1 text-base text-cyan-700">Welcome back, {session.user?.name ?? "team"}.</p>
+          <p className="mt-1 text-base text-cyan-700">Welcome back!</p>
         </div>
         <nav className="mt-10 flex flex-1 flex-col gap-2 text-base font-semibold relative z-10">
           {navItems.map((item) => {
