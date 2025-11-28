@@ -4,15 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "prisma generate && next dev",
-    "build": "prisma generate && prisma migrate deploy && next build",
+    "build": "node scripts/build.js",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate",
+    "postinstall": "prisma generate || echo 'Prisma generate skipped - DATABASE_URL not required for generation'",
     "seed": "ts-node prisma/seed.ts",
     "migrate": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build",
-    "prisma:generate": "prisma generate"
+    "vercel-build": "node scripts/build.js"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
