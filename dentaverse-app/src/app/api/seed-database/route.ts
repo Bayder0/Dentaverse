@@ -4,34 +4,34 @@ import bcrypt from "bcryptjs";
 
 export async function POST() {
   try {
-    // Create owner account
-    const ownerEmail = "owner@dentaverse.com";
-    const ownerPassword = "dentaverse2024";
-    const hashedOwnerPassword = await bcrypt.hash(ownerPassword, 10);
+    // Create bayder owner account
+    const bayderEmail = "baydershghl@gmail.com";
+    const bayderPassword = "bayder2025";
+    const hashedBayderPassword = await bcrypt.hash(bayderPassword, 10);
 
-    const owner = await prisma.user.upsert({
-      where: { email: ownerEmail },
+    const bayder = await prisma.user.upsert({
+      where: { email: bayderEmail },
       update: {
-        name: "DentaVerse Owner",
+        name: "bayder",
         role: "OWNER",
-        hashedPassword: hashedOwnerPassword,
-        plainPassword: ownerPassword,
+        hashedPassword: hashedBayderPassword,
+        plainPassword: bayderPassword,
       },
       create: {
-        email: ownerEmail,
-        name: "DentaVerse Owner",
+        email: bayderEmail,
+        name: "bayder",
         role: "OWNER",
-        hashedPassword: hashedOwnerPassword,
-        plainPassword: ownerPassword,
+        hashedPassword: hashedBayderPassword,
+        plainPassword: bayderPassword,
       },
     });
 
     return NextResponse.json({
       success: true,
       message: "Owner account created successfully!",
-      email: ownerEmail,
-      password: ownerPassword,
-      ownerId: owner.id,
+      email: bayderEmail,
+      password: bayderPassword,
+      userId: bayder.id,
     });
   } catch (error: any) {
     console.error("Error creating owner:", error);

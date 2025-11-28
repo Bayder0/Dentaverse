@@ -234,6 +234,29 @@ async function main() {
     });
   }
 
+  // Create bayder owner account
+  const bayderEmail = "baydershghl@gmail.com";
+  const bayderPassword = "bayder2025";
+  const hashedBayderPassword = await bcrypt.hash(bayderPassword, 10);
+
+  await prisma.user.upsert({
+    where: { email: bayderEmail },
+    update: {
+      name: "bayder",
+      role: "OWNER",
+      hashedPassword: hashedBayderPassword,
+      plainPassword: bayderPassword,
+    },
+    create: {
+      email: bayderEmail,
+      name: "bayder",
+      role: "OWNER",
+      hashedPassword: hashedBayderPassword,
+      plainPassword: bayderPassword,
+    },
+  });
+
+  // Also create the default owner account for backward compatibility
   const ownerEmail = "owner@dentaverse.com";
   const ownerPassword = "dentaverse2024";
   const hashedOwnerPassword = await bcrypt.hash(ownerPassword, 10);
