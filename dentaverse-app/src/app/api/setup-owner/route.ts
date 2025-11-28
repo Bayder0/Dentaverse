@@ -13,12 +13,12 @@ async function createOwner() {
     });
 
     if (existingOwner) {
-      return NextResponse.json({
+      return {
         success: true,
         message: "Owner user already exists",
         email: ownerEmail,
         password: existingOwner.plainPassword || ownerPassword,
-      });
+      };
     }
 
     // Create owner user
@@ -34,12 +34,12 @@ async function createOwner() {
       },
     });
 
-    return NextResponse.json({
+    return {
       success: true,
       message: "Owner user created successfully!",
       email: ownerEmail,
       password: ownerPassword,
-    });
+    };
   } catch (error: any) {
     console.error("Error creating owner:", error);
     return {
