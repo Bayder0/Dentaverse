@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     }
 
     // Validate role
-    const validRoles = ["SELLER", "ADMIN", "OWNER"];
+    const validRoles = ["SELLER", "OWNER"];
     const userRole = validRoles.includes(role) ? role : "SELLER";
 
     // Hash password
@@ -87,6 +87,18 @@ export async function POST(request: Request) {
     });
   } catch (error: any) {
     console.error("Error creating account:", error);
+    
+    // Check if it's a database table missing error
+    if (error.message?.includes("does not exist") || error.message?.includes("table")) {
+      return NextResponse.json(
+        {
+          error: "Database not initialized. Please run database migrations first. Contact the administrator.",
+          details: "The database tables have not been created yet. Migrations need to run.",
+        },
+        { status: 500 }
+      );
+    }
+    
     return NextResponse.json(
       {
         error: error.message || "Failed to create account",

@@ -136,7 +136,6 @@ export default function SignupPage() {
                 required
               >
                 <option value="SELLER">Seller</option>
-                <option value="ADMIN">Admin</option>
                 <option value="OWNER">Owner</option>
               </select>
             </label>
