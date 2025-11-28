@@ -10,6 +10,7 @@ type BucketNodeProps = {
   remaining: number;
   inflow: number;
   used: number;
+  defaultShare: number | null;
   children: BucketNodeProps[];
 };
 
