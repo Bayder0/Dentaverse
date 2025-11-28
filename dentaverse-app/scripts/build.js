@@ -12,15 +12,21 @@ try {
   const originalDbUrl = process.env.DATABASE_URL;
   
   // Use a dummy DATABASE_URL if not set (just for schema validation)
+  // Prisma needs this for validation, but won't actually connect
   if (!originalDbUrl) {
     const dummyUrl = 'postgresql://dummy:dummy@localhost:5432/dummy';
     process.env.DATABASE_URL = dummyUrl;
+    console.log('⚠️  DATABASE_URL not set, using dummy URL for Prisma generation only\n');
   }
   
-  execSync('npx prisma generate', { stdio: 'inherit' });
+  // Generate Prisma Client - this validates the schema but doesn't connect
+  execSync('npx prisma generate', { 
+    stdio: 'inherit',
+    env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL }
+  });
   console.log('✅ Prisma Client generated successfully\n');
   
-  // Restore original (or keep dummy if it wasn't set)
+  // Restore original DATABASE_URL for migrations step
   if (!originalDbUrl) {
     delete process.env.DATABASE_URL;
   } else {
