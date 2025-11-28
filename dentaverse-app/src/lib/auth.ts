@@ -17,6 +17,7 @@ export const authConfig = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
+          console.log("❌ Auth: Missing email or password");
           return null;
         }
 
@@ -24,21 +25,35 @@ export const authConfig = {
         const normalizedEmail = credentials.email.trim().toLowerCase();
         
         if (!normalizedEmail) {
+          console.log("❌ Auth: Empty email after normalization");
           return null;
         }
 
+        console.log("🔍 Auth: Looking for user with email:", normalizedEmail);
+        
         const user = await prisma.user.findUnique({
           where: { email: normalizedEmail },
         });
 
-        if (!user?.hashedPassword) {
+        if (!user) {
+          console.log("❌ Auth: User not found with email:", normalizedEmail);
           return null;
         }
 
-        const isValid = await bcrypt.compare(credentials.password, user.hashedPassword);
-        if (!isValid) {
+        if (!user?.hashedPassword) {
+          console.log("❌ Auth: User found but no hashed password");
           return null;
         }
+
+        console.log("🔍 Auth: Comparing password...");
+        const isValid = await bcrypt.compare(credentials.password, user.hashedPassword);
+        
+        if (!isValid) {
+          console.log("❌ Auth: Password doesn't match");
+          return null;
+        }
+
+        console.log("✅ Auth: Login successful for:", normalizedEmail);
 
         return {
           id: user.id,
