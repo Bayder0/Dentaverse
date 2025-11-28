@@ -96,16 +96,16 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-sm text-slate-600">
-            Don't have an account?{" "}
-            <a
-              href="/signup"
-              className="text-cyan-600 hover:text-cyan-700 font-medium"
-            >
-              Create account
-            </a>
+        <div className="mt-6 pt-6 border-t border-slate-200 text-center">
+          <p className="text-sm text-slate-600 mb-2">
+            Don't have an account?
           </p>
+          <a
+            href="/signup"
+            className="inline-block w-full rounded-lg border-2 border-cyan-600 bg-white py-2 text-sm font-semibold text-cyan-600 transition hover:bg-cyan-50"
+          >
+            Create New Account
+          </a>
         </div>
       </div>
       </div>
