@@ -4,24 +4,45 @@ import bcrypt from "bcryptjs";
 
 export async function POST() {
   try {
-    // Create bayder owner account
-    const bayderEmail = "baydershghl@gmail.com";
+    // Create bayder owner account - normalize email to lowercase
+    const bayderEmail = "baydershghl@gmail.com".toLowerCase().trim();
     const bayderPassword = "bayder2025";
-    const hashedBayderPassword = await bcrypt.hash(bayderPassword, 10);
-
-    const bayder = await prisma.user.upsert({
+    
+    // Check if user exists first
+    const existingUser = await prisma.user.findUnique({
       where: { email: bayderEmail },
-      update: {
-        name: "bayder",
-        role: "OWNER",
-        hashedPassword: hashedBayderPassword,
-        plainPassword: bayderPassword,
-      },
-      create: {
+    });
+
+    if (existingUser) {
+      // Update password in case it changed
+      const hashedPassword = await bcrypt.hash(bayderPassword, 10);
+      const updated = await prisma.user.update({
+        where: { email: bayderEmail },
+        data: {
+          hashedPassword: hashedPassword,
+          plainPassword: bayderPassword,
+          role: "OWNER",
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: "Owner account already existed - password updated!",
+        email: bayderEmail,
+        password: bayderPassword,
+        userId: updated.id,
+        action: "updated",
+      });
+    }
+
+    // Create new user
+    const hashedPassword = await bcrypt.hash(bayderPassword, 10);
+    const bayder = await prisma.user.create({
+      data: {
         email: bayderEmail,
         name: "bayder",
         role: "OWNER",
-        hashedPassword: hashedBayderPassword,
+        hashedPassword: hashedPassword,
         plainPassword: bayderPassword,
       },
     });
@@ -32,6 +53,7 @@ export async function POST() {
       email: bayderEmail,
       password: bayderPassword,
       userId: bayder.id,
+      action: "created",
     });
   } catch (error: any) {
     console.error("Error creating owner:", error);
