@@ -20,9 +20,10 @@ try {
   }
   
   // Generate Prisma Client - this validates the schema but doesn't connect
+  // Pass the environment explicitly to ensure DATABASE_URL is available
   execSync('npx prisma generate', { 
     stdio: 'inherit',
-    env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL }
+    env: process.env
   });
   console.log('✅ Prisma Client generated successfully\n');
   
