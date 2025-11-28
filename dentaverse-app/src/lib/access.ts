@@ -1,9 +1,8 @@
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authConfig } from "./auth";
+import { getSession } from "./session";
 
 export async function requireRole(allowedRoles: string[]) {
-  const session = await getServerSession(authConfig);
+  const session = await getSession();
   if (!session?.user) {
     redirect("/login");
   }
@@ -15,7 +14,7 @@ export async function requireRole(allowedRoles: string[]) {
 }
 
 export async function getCurrentUser() {
-  const session = await getServerSession(authConfig);
+  const session = await getSession();
   return session?.user;
 }
 

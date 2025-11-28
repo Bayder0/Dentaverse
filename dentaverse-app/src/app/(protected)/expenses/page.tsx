@@ -4,13 +4,12 @@ import { formatCurrency } from "@/lib/format";
 import { Receipt, Stethoscope } from "lucide-react";
 import { DeleteButton } from "@/components/delete-button";
 import { deleteExpenseAction } from "@/app/actions";
-import { getServerSession } from "next-auth";
-import { authConfig } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 
 export const dynamic = 'force-dynamic';
 
 export default async function ExpensesPage() {
-  const session = await getServerSession(authConfig);
+  const session = await getSession();
   const userRole = session?.user?.role;
   const isOwner = userRole === "OWNER";
   

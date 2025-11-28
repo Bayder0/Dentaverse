@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authConfig } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { getMonthKey } from "@/lib/date";
 import { formatCurrency, formatPercent } from "@/lib/format";
 import { CreateSellerForm } from "./create-seller-form";
@@ -9,7 +8,7 @@ import { deleteSellerAction } from "@/app/actions";
 import { Users, Stethoscope } from "lucide-react";
 
 export default async function SellersPage() {
-  const session = await getServerSession(authConfig);
+  const session = await getSession();
   const currentUser = session?.user;
   const isOwner = currentUser?.role === "OWNER";
   const monthKey = getMonthKey(new Date());

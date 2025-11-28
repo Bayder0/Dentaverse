@@ -1,7 +1,6 @@
 import { SaleEntryForm } from "./sale-entry-form";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authConfig } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { getMonthKey } from "@/lib/date";
 import { formatCurrency } from "@/lib/format";
 import { DeleteButton } from "@/components/delete-button";
@@ -9,7 +8,7 @@ import { deleteSaleAction } from "@/app/actions";
 import { ShoppingCart, Stethoscope } from "lucide-react";
 
 export default async function SalesPage() {
-  const session = await getServerSession(authConfig);
+  const session = await getSession();
   const currentUser = session?.user;
   const isOwner = currentUser?.role === "OWNER";
   const isSeller = currentUser?.role === "SELLER";

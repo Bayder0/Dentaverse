@@ -1,8 +1,7 @@
 import { ReactNode } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authConfig } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { LogoutButton } from "@/components/logout-button";
 import {
   LayoutDashboard,
@@ -30,7 +29,7 @@ const allNavItems = [
 ];
 
 export default async function ProtectedLayout({ children }: { children: ReactNode }) {
-  const session = await getServerSession(authConfig);
+  const session = await getSession();
 
   if (!session) {
     redirect("/login");

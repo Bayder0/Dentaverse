@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authConfig } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { requireRole } from "@/lib/access";
 import { formatCurrency, formatPercent } from "@/lib/format";
 import { CourseForm } from "./course-form";
@@ -13,7 +12,7 @@ import { GraduationCap, Stethoscope } from "lucide-react";
 
 export default async function CoursesPage() {
   await requireRole(["OWNER"]);
-  const session = await getServerSession(authConfig);
+  const session = await getSession();
   const isOwner = session?.user?.role === "OWNER";
   const [courses, templates, discounts, buckets] = await Promise.all([
     prisma.course.findMany({

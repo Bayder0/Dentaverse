@@ -3,10 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
-import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { getMonthKey } from "@/lib/date";
-import { authConfig } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { calculateSaleFinancials, determineSellerLevel } from "@/lib/calculations";
 import { computeMonthlyMetrics } from "@/lib/kpis";
 
@@ -16,7 +15,7 @@ type ActionResult = {
 };
 
 async function getSessionUser() {
-  const session = await getServerSession(authConfig);
+  const session = await getSession();
   if (!session?.user?.id) {
     throw new Error("Unauthorized");
   }

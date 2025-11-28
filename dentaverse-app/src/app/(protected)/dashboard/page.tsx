@@ -6,8 +6,7 @@ import { formatCurrency, formatPercent } from "@/lib/format";
 import { RevenueTrendChart } from "@/components/charts/revenue-trend";
 import { MonthSelector } from "@/components/month-selector";
 import { LayoutDashboard, Stethoscope } from "lucide-react";
-import { getServerSession } from "next-auth";
-import { authConfig } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 
 export const dynamic = 'force-dynamic';
 
@@ -44,7 +43,7 @@ export default async function DashboardPage({
   }
 
   // Get current user session to check role
-  const session = await getServerSession(authConfig);
+  const session = await getSession();
   const userRole = session?.user?.role;
   const isOwner = userRole === "OWNER";
   const isSeller = userRole === "SELLER";
