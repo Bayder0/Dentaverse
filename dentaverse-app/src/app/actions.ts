@@ -787,6 +787,7 @@ export async function deleteSaleAction(_: ActionResult, formData: FormData): Pro
           sellerId: sale.seller.id,
           monthKey,
         },
+        by: ["sellerId", "monthKey"],
         _sum: {
           sellerCommission: true,
         },
