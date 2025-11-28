@@ -1,0 +1,266 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(cuid())
+  name          String?
+  email         String?        @unique
+  emailVerified DateTime?
+  image         String?
+  role          String         @default("SELLER")
+  hashedPassword String?
+  plainPassword String?        // Temporary storage for owner view only
+  twoFactorSecret String?
+  twoFactorEnabled Boolean     @default(false)
+  sellerProfile SellerProfile?
+  salesEntered  Sale[]         @relation("SalesRecorder")
+  expenses      Expense[]
+  salaryPayments SalaryPayment[] @relation("SalaryPaidBy")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model SellerProfile {
+  id                  String               @id @default(cuid())
+  userId              String               @unique
+  level               Int                  @default(1)
+  salesThisMonth      Int                  @default(0)
+  currentCommission   Decimal              @default(0.15)
+  totalCommissionPaid Decimal              @default(0)
+  monthKey            String               @default("")
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sales               Sale[]               @relation("SaleSeller")
+  levelLogs           SellerLevelHistory[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+}
+
+model SellerLevelRule {
+  id             Int      @id @default(autoincrement())
+  level          Int      @unique
+  minSales       Int
+  maxSales       Int?
+  commissionRate Decimal
+}
+
+model SellerLevelHistory {
+  id             String   @id @default(cuid())
+  sellerId       String
+  previousLevel  Int
+  newLevel       Int
+  previousRate   Decimal
+  newRate        Decimal
+  effectiveMonth String
+  changedAt      DateTime @default(now())
+  seller         SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+}
+
+model Course {
+  id                        String                @id @default(cuid())
+  name                      String                @unique
+  type                      String                @default("MINISTERIAL")
+  stage                     Int?
+  basePrice                 Decimal
+  platformFeeRate           Decimal               @default(0.135)
+  customDistributionId      String?
+  customDistribution        DistributionTemplate? @relation("CourseTemplate", fields: [customDistributionId], references: [id])
+  active                    Boolean               @default(true)
+  createdAt                 DateTime              @default(now())
+  updatedAt                 DateTime              @updatedAt
+  sales                     Sale[]
+}
+
+model Discount {
+  id          String        @id @default(cuid())
+  name        String        @unique
+  type        String        @default("FLAT")
+  amount      Decimal
+  active      Boolean       @default(true)
+  description String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  sales       Sale[]
+}
+
+model DistributionTemplate {
+  id            String                @id @default(cuid())
+  name          String                @unique
+  description   String?
+  applicableTo  String?
+  allocations   DistributionSlice[]
+  courses       Course[]              @relation("CourseTemplate")
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+}
+
+model FundBucket {
+  id               String               @id @default(cuid())
+  key              String               @unique
+  label            String
+  description      String?
+  parentId         String?
+  parent           FundBucket?          @relation("BucketChildren", fields: [parentId], references: [id])
+  children         FundBucket[]         @relation("BucketChildren")
+  defaultShare     Decimal?
+  active           Boolean              @default(true)
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  slices           DistributionSlice[]
+  saleDistributions SaleDistribution[]
+  expenses         Expense[]
+  salaryRecipients SalaryRecipient[]
+  salaryPayments   SalaryPayment[]      @relation("SalaryBucket")
+}
+
+model DistributionSlice {
+  id          String               @id @default(cuid())
+  templateId  String
+  bucketId    String
+  percentage  Decimal
+  template    DistributionTemplate  @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  bucket      FundBucket            @relation(fields: [bucketId], references: [id], onDelete: Cascade)
+}
+
+model Sale {
+  id                 String            @id @default(cuid())
+  courseId           String
+  sellerId           String?
+  recordedById       String?
+  discountId         String?
+  saleDate           DateTime
+  stage              Int?
+  priceBefore        Decimal
+  discountAmount     Decimal           @default(0)
+  priceAfterDiscount Decimal
+  platformFee        Decimal
+  profitAfterPlatform Decimal
+  sellerCommission   Decimal           @default(0)
+  netProfit          Decimal
+  note               String?
+  monthKey           String
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  course             Course            @relation(fields: [courseId], references: [id])
+  seller             SellerProfile?    @relation("SaleSeller", fields: [sellerId], references: [id])
+  recordedBy         User?             @relation("SalesRecorder", fields: [recordedById], references: [id])
+  discount           Discount?         @relation(fields: [discountId], references: [id])
+  distributions      SaleDistribution[]
+}
+
+model SaleDistribution {
+  id         String      @id @default(cuid())
+  saleId     String
+  bucketId   String
+  percentage Decimal
+  amount     Decimal
+  sale       Sale        @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  bucket     FundBucket  @relation(fields: [bucketId], references: [id], onDelete: Cascade)
+}
+
+model Expense {
+  id           String     @id @default(cuid())
+  bucketId     String
+  description  String
+  amount       Decimal
+  expenseDate  DateTime
+  monthKey     String
+  createdById  String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  bucket       FundBucket @relation(fields: [bucketId], references: [id], onDelete: Restrict)
+  createdBy    User       @relation(fields: [createdById], references: [id], onDelete: Restrict)
+}
+
+model SalaryRecipient {
+  id              String       @id @default(cuid())
+  name            String
+  roleLabel       String
+  bucketId        String
+  mode            String
+  percentageShare Decimal?
+  fixedAmount     Decimal?
+  unitRate        Decimal?
+  unitName        String?
+  notes           String?
+  active          Boolean      @default(true)
+  bucket          FundBucket   @relation(fields: [bucketId], references: [id], onDelete: Restrict)
+  payments        SalaryPayment[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model SalaryPayment {
+  id              String       @id @default(cuid())
+  recipientId     String
+  bucketId        String
+  paidById        String
+  amount          Decimal
+  periodKey       String
+  paidOn          DateTime     @default(now())
+  notes           String?
+  unitsCovered    Int?
+  recipient       SalaryRecipient @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  bucket          FundBucket      @relation("SalaryBucket", fields: [bucketId], references: [id], onDelete: Restrict)
+  paidBy          User            @relation("SalaryPaidBy", fields: [paidById], references: [id], onDelete: Restrict)
+}
+
+model MonthlyKpiSnapshot {
+  id                 String   @id @default(cuid())
+  monthKey           String   @unique
+  revenue            Decimal
+  profit             Decimal
+  netProfit          Decimal
+  averageSaleValue   Decimal
+  discountRate       Decimal
+  grossMargin        Decimal
+  salesCount         Int
+  revenueGrowth      Decimal?
+  profitGrowth       Decimal?
+  salesGrowth        Decimal?
+  createdAt          DateTime @default(now())
+}
