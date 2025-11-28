@@ -1,10 +1,9 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import type { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 
-export const authConfig: NextAuthConfig = {
+export const authConfig = {
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
