@@ -1,11 +1,11 @@
-import NextAuth from "next-auth";
-import { authConfig } from "@/lib/auth";
-import { ensureOwnerAccount } from "@/lib/init-owner";
+import { NextResponse } from "next/server";
 
-// Ensure owner account exists on app startup
-ensureOwnerAccount().catch(console.error);
+// NextAuth disabled - return empty responses
+export async function GET() {
+  return NextResponse.json({ message: "Authentication disabled" }, { status: 200 });
+}
 
-const handler = NextAuth(authConfig);
-
-export { handler as GET, handler as POST };
+export async function POST() {
+  return NextResponse.json({ message: "Authentication disabled" }, { status: 200 });
+}
 

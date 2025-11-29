@@ -1,21 +1,24 @@
-import { redirect } from "next/navigation";
 import { getSession } from "./session";
 
+// Authentication disabled - return default user for compatibility
 export async function requireRole(allowedRoles: string[]) {
-  const session = await getSession();
-  if (!session?.user) {
-    redirect("/login");
-  }
-  const userRole = session.user.role || "SELLER";
-  if (!allowedRoles.includes(userRole)) {
-    redirect("/dashboard");
-  }
-  return session.user;
+  // Return a default user object to maintain compatibility with existing code
+  return {
+    id: "default",
+    role: "OWNER" as const,
+    email: "",
+    name: "User",
+  };
 }
 
 export async function getCurrentUser() {
-  const session = await getSession();
-  return session?.user;
+  // Return default user since authentication is disabled
+  return {
+    id: "default",
+    role: "OWNER" as const,
+    email: "",
+    name: "User",
+  };
 }
 
 

@@ -40,3 +40,4 @@ export function formatCompactNumber(value: number | null | undefined) {
 
 
 
+

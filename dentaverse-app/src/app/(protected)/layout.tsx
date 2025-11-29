@@ -1,8 +1,5 @@
 import { ReactNode } from "react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { getSession } from "@/lib/session";
-import { LogoutButton } from "@/components/logout-button";
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -29,12 +26,6 @@ const allNavItems = [
 ];
 
 export default async function ProtectedLayout({ children }: { children: ReactNode }) {
-  const session = await getSession();
-
-  if (!session) {
-    redirect("/login");
-  }
-
   const navItems = allNavItems;
 
   return (
@@ -73,9 +64,6 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
             );
           })}
         </nav>
-        <div className="relative z-10">
-          <LogoutButton variant="solid" />
-        </div>
       </aside>
       <main className="flex-1 bg-cyan-50">
         <header className="flex items-center justify-between border-b border-cyan-200 bg-white px-6 py-5 shadow-sm lg:hidden">
@@ -85,7 +73,6 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
               DentaVerse
             </h1>
           </div>
-          <LogoutButton />
         </header>
         <div className="px-6 py-8 lg:px-10">{children}</div>
       </main>

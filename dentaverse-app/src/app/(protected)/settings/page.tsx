@@ -8,6 +8,7 @@ import { Settings, Stethoscope } from "lucide-react";
 
 export default async function SettingsPage() {
   const currentUser = await requireRole(["OWNER"]);
+  const isOwner = currentUser?.role === "OWNER";
   
   const [rules, users] = await Promise.all([
     prisma.sellerLevelRule.findMany({ orderBy: { level: "asc" } }),
@@ -23,8 +24,6 @@ export default async function SettingsPage() {
       },
     }),
   ]);
-
-  const isOwner = currentUser?.role === "OWNER";
 
   return (
     <div className="space-y-8 relative">
