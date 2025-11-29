@@ -7,6 +7,8 @@ import { DeleteButton } from "@/components/delete-button";
 import { deleteSellerAction } from "@/app/actions";
 import { Users, Stethoscope } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export default async function SellersPage() {
   const session = await getSession();
   const currentUser = session?.user;

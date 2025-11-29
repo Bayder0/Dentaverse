@@ -3,6 +3,8 @@ import { formatCurrency, formatPercent } from "@/lib/format";
 import { RevenueTrendChart } from "@/components/charts/revenue-trend";
 import { BarChart3, Stethoscope } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export default async function AnalyticsPage() {
   const series = await getMonthlyKpiSeries(12);
   const latest = series.at(-1);

@@ -7,6 +7,8 @@ import { SalaryRecipientForm } from "./salary-recipient-form";
 import { SalaryPaymentForm } from "./salary-payment-form";
 import { Wallet, Stethoscope } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 type BucketInfo = {
   id: string;
   path: string;

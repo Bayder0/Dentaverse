@@ -9,6 +9,8 @@ import { DeleteButton } from "@/components/delete-button";
 import { deleteCourseAction, deleteDiscountAction } from "@/app/actions";
 import { GraduationCap, Stethoscope } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export default async function CoursesPage() {
   const currentUser = await requireRole(["OWNER"]);
   const isOwner = currentUser?.role === "OWNER";

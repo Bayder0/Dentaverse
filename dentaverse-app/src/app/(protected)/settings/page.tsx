@@ -6,6 +6,8 @@ import { deleteUserAction } from "@/app/actions";
 import { DeleteButton } from "@/components/delete-button";
 import { Settings, Stethoscope } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export default async function SettingsPage() {
   const currentUser = await requireRole(["OWNER"]);
   const isOwner = currentUser?.role === "OWNER";

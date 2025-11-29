@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { getMonthKey } from "@/lib/date";
 import { DollarSign, Stethoscope } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 type BucketNodeProps = {
   id: string;
   label: string;
