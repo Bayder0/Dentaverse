@@ -53,10 +53,10 @@ export default function LoginPage() {
             DentaVerse
           </p>
           <h1 className="mt-3 text-2xl font-semibold text-slate-900">
-            Enter Password to Access
+            Enter Password
           </h1>
           <p className="mt-2 text-sm text-slate-500">
-            Enter the master password to access the control center.
+            Enter password to access the website.
           </p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
