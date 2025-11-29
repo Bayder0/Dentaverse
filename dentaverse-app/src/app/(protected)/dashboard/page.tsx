@@ -15,59 +15,64 @@ export default async function DashboardPage({
 }: {
   searchParams?: Promise<{ months?: string | string[] }> | { months?: string | string[] };
 }) {
-  // Handle both Promise and direct object for searchParams (Next.js 15 compatibility)
-  const params = searchParams instanceof Promise ? await searchParams : (searchParams || {});
-  
-  const now = new Date();
-  const monthsParam = params?.months;
-  let selectedMonths: string[];
-  
-  if (!monthsParam) {
-    selectedMonths = [getMonthKey(now)];
-  } else if (Array.isArray(monthsParam)) {
-    selectedMonths = monthsParam.filter(Boolean);
-  } else if (typeof monthsParam === "string") {
-    selectedMonths = monthsParam.split(",").filter(Boolean).map(m => m.trim());
-  } else {
-    selectedMonths = [getMonthKey(now)];
-  }
-  
-  if (selectedMonths.length === 0) {
-    selectedMonths = [getMonthKey(now)];
-  }
+  try {
+    // Handle both Promise and direct object for searchParams (Next.js 15 compatibility)
+    const params = searchParams instanceof Promise ? await searchParams : (searchParams || {});
+    
+    const now = new Date();
+    const monthsParam = params?.months;
+    let selectedMonths: string[];
+    
+    if (!monthsParam) {
+      selectedMonths = [getMonthKey(now)];
+    } else if (Array.isArray(monthsParam)) {
+      selectedMonths = monthsParam.filter(Boolean);
+    } else if (typeof monthsParam === "string") {
+      selectedMonths = monthsParam.split(",").filter(Boolean).map(m => m.trim());
+    } else {
+      selectedMonths = [getMonthKey(now)];
+    }
+    
+    if (selectedMonths.length === 0) {
+      selectedMonths = [getMonthKey(now)];
+    }
 
-  // Ensure all month keys are valid format (YYYY-MM)
-  const validMonths = selectedMonths.filter(m => /^\d{4}-\d{2}$/.test(m));
-  if (validMonths.length === 0) {
-    validMonths.push(getMonthKey(now));
-  }
+    // Ensure all month keys are valid format (YYYY-MM)
+    const validMonths = selectedMonths.filter(m => /^\d{4}-\d{2}$/.test(m));
+    if (validMonths.length === 0) {
+      validMonths.push(getMonthKey(now));
+    }
 
-  // Get current user session to check role
-  const session = await getSession();
-  const userRole = session?.user?.role;
-  const isOwner = userRole === "OWNER";
-  const isSeller = userRole === "SELLER";
-  
-  // If seller, get their seller profile to filter by their sales only
-  let sellerProfileId: string | null = null;
-  if (isSeller && session?.user?.id) {
-    const sellerProfile = await prisma.sellerProfile.findUnique({
-      where: { userId: session.user.id },
-      select: { id: true },
-    });
-    sellerProfileId = sellerProfile?.id || null;
-  }
+    // Get current user session to check role
+    const session = await getSession();
+    const userRole = session?.user?.role;
+    const isOwner = userRole === "OWNER";
+    const isSeller = userRole === "SELLER";
+    
+    // If seller, get their seller profile to filter by their sales only
+    let sellerProfileId: string | null = null;
+    if (isSeller && session?.user?.id) {
+      try {
+        const sellerProfile = await prisma.sellerProfile.findUnique({
+          where: { userId: session.user.id },
+          select: { id: true },
+        });
+        sellerProfileId = sellerProfile?.id || null;
+      } catch (error) {
+        console.error("Error fetching seller profile:", error);
+      }
+    }
 
-  // Build where clause - filter by months and seller (if seller)
-  const salesWhere: any = {
-    monthKey: { in: validMonths },
-  };
-  if (isSeller && sellerProfileId) {
-    salesWhere.sellerId = sellerProfileId;
-  }
+    // Build where clause - filter by months and seller (if seller)
+    const salesWhere: any = {
+      monthKey: { in: validMonths },
+    };
+    if (isSeller && sellerProfileId) {
+      salesWhere.sellerId = sellerProfileId;
+    }
 
-  // Query ONLY sales records that match the selected months (and seller if applicable)
-  const [salesAggregation, series, bucketTree, sellerGroups, courseGroups, recentSales] = await Promise.all([
+    // Query ONLY sales records that match the selected months (and seller if applicable)
+    const [salesAggregation, series, bucketTree, sellerGroups, courseGroups, recentSales] = await Promise.all([
     prisma.sale.aggregate({
       where: salesWhere,
       _sum: {
@@ -381,6 +386,34 @@ export default async function DashboardPage({
       </section>
     </div>
   );
+  } catch (error: any) {
+    console.error("Dashboard error:", error);
+    return (
+      <div className="space-y-8 relative">
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-cyan-100 rounded-lg">
+              <LayoutDashboard className="w-6 h-6 text-cyan-600" />
+            </div>
+            <p className="text-base uppercase tracking-[0.3em] font-bold text-cyan-600">Dashboard</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Stethoscope className="w-8 h-8 text-cyan-500 opacity-60" />
+            <h1 className="text-3xl font-bold text-cyan-900">Overview & Statistics</h1>
+          </div>
+        </div>
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-6">
+          <h2 className="text-lg font-semibold text-red-900 mb-2">Error Loading Dashboard</h2>
+          <p className="text-sm text-red-700">
+            {error?.message || "An error occurred while loading the dashboard. Please check your database connection and try again."}
+          </p>
+          <p className="text-xs text-red-600 mt-2">
+            If this persists, please check your DATABASE_URL environment variable in Vercel.
+          </p>
+        </div>
+      </div>
+    );
+  }
 }
 
 
